@@ -1,5 +1,5 @@
 import pytest
-from aoc_2015.day_one import run
+from aoc_2015.day_one import run, position_basement
 
 def test_first_floor_is_zero():
     # Arrange
@@ -34,4 +34,13 @@ direction_cases = [
 def test_run_directions(directions,expected):
     assert run(directions) == expected
 
+
+basement_position_cases = [
+    pytest.param(')', 1, id='case 9'),
+    pytest.param('()())', 5, id='case 10')
+]
+
+@pytest.mark.parametrize("directions,expected", basement_position_cases)
+def test_position_basement(directions,expected):
+    assert position_basement(directions) == expected 
 
