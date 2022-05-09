@@ -26,3 +26,8 @@ def test_grid_instructions():
     assert grid[2][1] == 1
     assert grid[2][2] == 1
     assert ligths_lit_sum(grid) == 4
+
+def test_grid_instructions_v2():
+    instructions = [i[0][0] for i in instructions_cases]
+    grid = operate_grid(instructions, 3, 3, True)
+    assert ligths_lit_sum(grid) == 13

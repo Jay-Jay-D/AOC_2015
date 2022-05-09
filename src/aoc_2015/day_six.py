@@ -9,17 +9,24 @@ def decode_instruction(instruction):
     order = part_a[1] if part_a[0] == 'turn' else part_a[0]
     return order, int(x_start), int(y_start), int(x_end), int(y_end)
 
-def operate_grid(instructions, x_size=1000, y_size=1000):
+def operate_grid(instructions, x_size=1000, y_size=1000, v2=False):
     grid = [[0 for j in range (y_size)] for i in range(x_size)]
     for instruction in instructions:
         order,x_start,y_start,x_end,y_end = decode_instruction(instruction)
         for x in range(x_start, x_end+1):
             for y in range(y_start, y_end+1):
                 if order == 'toggle':
-                    grid[x][y] = 1 if grid[x][y] == 0 else 0
+                    if v2:
+                        grid[x][y] += 2
+                    else:
+                        grid[x][y] = 1 if grid[x][y] == 0 else 0
                 else:
-                    state = 1 if order == 'on' else 0
-                    grid[x][y] = state
+                    if v2:
+                        grid[x][y] += 1 if order == 'on' else -1
+                        grid[x][y] = max(0, grid[x][y])
+                    else:
+                        state = 1 if order == 'on' else 0
+                        grid[x][y] = state
     return grid
 
 def ligths_lit_sum(grid):
@@ -34,3 +41,5 @@ if __name__ == "__main__":
     instructions = puzzle_input.open().readlines()
     grid = operate_grid(instructions)
     print(f'How many lights are lit?: {ligths_lit_sum(grid)}')
+    grid = operate_grid(instructions, v2=True)
+    print(f'Total brightness: {ligths_lit_sum(grid)}')
