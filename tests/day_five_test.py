@@ -3,13 +3,14 @@ from aoc_2015.day_five import (three_vowel, letter_in_a_row,
                                forbiden_string, letter_in_a_row_2,
                                repeated_letter)
 
-conditions=[three_vowel,letter_in_a_row, forbiden_string, letter_in_a_row_2, repeated_letter]
+conditions = [three_vowel, letter_in_a_row,
+              forbiden_string, letter_in_a_row_2, repeated_letter]
 
 word_cases = [
     pytest.param('aei', 0, True, id='three vowels case 1'),
-    pytest.param('xazegov',0, True, id='three vowels case 2'),
-    pytest.param('aeiouaeiouaeiou',0, True, id='three vowels case 3'),
-    pytest.param('xyz',0, False, id='three vowels case 4'),
+    pytest.param('xazegov', 0, True, id='three vowels case 2'),
+    pytest.param('aeiouaeiouaeiou', 0, True, id='three vowels case 3'),
+    pytest.param('xyz', 0, False, id='three vowels case 4'),
     pytest.param('xx', 1, True, id='letter in a row case 1'),
     pytest.param('abcdde', 1, True, id='letter in a row case 2'),
     pytest.param('aabbccdd', 1, True, id='letter in a row case 3'),
@@ -24,6 +25,7 @@ word_cases = [
     pytest.param('efe', 4, True, id='repeated letter case 3'),
     pytest.param('qwerty', 4, False, id='repeated letter case 4'),
 ]
+
 
 @pytest.mark.parametrize('word,condition,expected', word_cases)
 def test_three_vowel_condition(word, condition, expected):

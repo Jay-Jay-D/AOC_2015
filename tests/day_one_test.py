@@ -1,23 +1,27 @@
 import pytest
 from aoc_2015.day_one import run, position_basement
 
+
 def test_first_floor_is_zero():
     # Arrange
     directions = ''
-    # Act and test 
+    # Act and test
     assert run(directions) == 0
+
 
 def test_go_up():
     # Arrange
     directions = '('
-    # Act and test 
+    # Act and test
     assert run(directions) == 1
+
 
 def test_go_down():
     # Arrange
     directions = ')'
-    # Act and test 
+    # Act and test
     assert run(directions) == -1
+
 
 direction_cases = [
     pytest.param('(())', 0, id='case 1'),
@@ -30,8 +34,9 @@ direction_cases = [
     pytest.param(')())())', -3, id='case 8')
 ]
 
+
 @pytest.mark.parametrize("directions,expected", direction_cases)
-def test_run_directions(directions,expected):
+def test_run_directions(directions, expected):
     assert run(directions) == expected
 
 
@@ -40,7 +45,7 @@ basement_position_cases = [
     pytest.param('()())', 5, id='case 10')
 ]
 
-@pytest.mark.parametrize("directions,expected", basement_position_cases)
-def test_position_basement(directions,expected):
-    assert position_basement(directions) == expected 
 
+@pytest.mark.parametrize("directions,expected", basement_position_cases)
+def test_position_basement(directions, expected):
+    assert position_basement(directions) == expected

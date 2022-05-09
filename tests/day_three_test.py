@@ -8,7 +8,8 @@ direction_cases = [
     pytest.param('^v', 2, 3, id='case 4')
 ]
 
+
 @pytest.mark.parametrize("directions,expected,expected_with_robo", direction_cases)
-def test_gift_delivering(directions,expected,expected_with_robo):
+def test_gift_delivering(directions, expected, expected_with_robo):
     assert len(get_gift_coordinates(directions)) == expected
     assert len(deliver_gifts_with_robo_santa(directions)) == expected_with_robo

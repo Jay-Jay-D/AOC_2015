@@ -7,6 +7,8 @@ suface_area_cases = [
     pytest.param('4x23x21', 1402, 1982, id='case 3'),
 ]
 
+
 @pytest.mark.parametrize("side_lengths,expected_area,expected_ribbon", suface_area_cases)
-def test_get_box_surface_area(side_lengths,expected_area,expected_ribbon):
-    assert get_box_papper_and_ribbon(side_lengths) == (expected_area, expected_ribbon)
+def test_get_box_surface_area(side_lengths, expected_area, expected_ribbon):
+    assert get_box_papper_and_ribbon(side_lengths) == (
+        expected_area, expected_ribbon)
