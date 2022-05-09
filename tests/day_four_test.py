@@ -6,6 +6,6 @@ cases = [
     pytest.param('pqrstuv', 1048970, id='case 2')
 ]
 
-@pytest.mark.parametrize("secret_key,expected", cases)
+@pytest.mark.parametrize('secret_key,expected', cases)
 def test_value_for_key(secret_key, expected):
     assert find_value_for_key(secret_key) == expected

@@ -6,7 +6,7 @@ def get_box_papper_and_ribbon(suface_area):
     return (2*a*b + 2*b*c + 2*a*c) + (a*b), (2*a + 2*b) + (a*b*c)
 
 if __name__ == "__main__":
-    puzzle_input = Path('./src/aoc_2015/day_two_input.txt')
+    puzzle_input = Path('./src/aoc_2015/input/day_two.txt')
     gifts = puzzle_input.open().readlines()
     total_area = 0
     total_ribbon = 0

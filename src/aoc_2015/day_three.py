@@ -25,7 +25,7 @@ def get_gift_coordinates(directions):
     return set(coordinates)
 
 if __name__ == "__main__":
-    puzzle_input = Path('./src/aoc_2015/day_three_input.txt')
+    puzzle_input = Path('./src/aoc_2015/input/day_three.txt')
     directions = puzzle_input.open().readline()
     print(f'Houses that received at least one present: {len(get_gift_coordinates(directions))}')
     print(f'Houses that received at least one present with RoboSanta: {len(deliver_gifts_with_robo_santa(directions))}')
