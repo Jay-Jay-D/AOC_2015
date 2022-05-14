@@ -79,6 +79,21 @@ class Circuit:
         self.gates = []
         self.state = {}
         self.fixed_buses = {}
+        self.build_circuit()
+
+    def build_circuit(self):
+        for instruction in self.circuit_intructions:
+            component = parse_instruction(instruction)
+            # Part 2 - after refreshing we need to keep the instructions for fixed buses
+            # e.g. 123 -> x
+            if isinstance(component, Bus) and component.value is not None:
+                self.fixed_buses[component.name] = component.value
+            self.add_component(component)
+
+        # update the gates with the input buses
+        self.wire_gates()
+        # wire buses e.g lx -> a
+        self.wire_buses()
 
     def add_component(self, component):
         if isinstance(component, Bus):
@@ -103,28 +118,20 @@ class Circuit:
                 else:
                     gate.input_busses.append(Bus(str(uuid4()), value=int(bus)))
 
+    def wire_buses(self):
+        for bus in self.buses.values():
+            if isinstance(bus.bus_input, str) and bus.bus_input in self.buses.keys():
+                bus.bus_input = self.buses[bus.bus_input]
+
     def refresh(self):
+        self.state = {}
         for bus in self.buses.values():
             bus.value = None
-        self.state = {}
         for bus, value in self.fixed_buses.items():
             self.buses[bus].value = value
 
     def run(self):
-        for instruction in self.circuit_intructions:
-            component = parse_instruction(instruction)
-            # Part 2 - after refreshing we need to keep the instructions for fixed buses
-            # e.g. 123 -> x
-            if isinstance(component, Bus) and component.value is not None:
-                self.fixed_buses[component.name] = component.value
-            self.add_component(component)
-
-        # update the gates with the input buses
-        self.wire_gates()
-
         for bus in self.buses.values():
-            if isinstance(bus.bus_input, str) and bus.bus_input in self.buses.keys():
-                bus.bus_input = self.buses[bus.bus_input]
             self.state[bus.name] = bus.activate()
 
 
@@ -132,7 +139,6 @@ if __name__ == "__main__":
     puzzle_input = Path("./src/aoc_2015/input/day_seven.txt")
     circuit_instructions = puzzle_input.open().readlines()
     circuit = Circuit(circuit_instructions)
-
     circuit.run()
     print(f'Part 1 - bus a value: {circuit.state["a"]}')
     a_bus_value = circuit.state["a"]
