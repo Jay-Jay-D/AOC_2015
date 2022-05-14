@@ -56,8 +56,8 @@ class Gate:
 
     def activate(self):
         for bus in self.input_busses:
-            if bus.value is None:
-                bus.activate()
+            bus.activate()
+
         if self.operator == "AND":
             return self.input_busses[0].value & self.input_busses[1].value
         if self.operator == "OR":
@@ -91,18 +91,21 @@ class Circuit:
                 except Exception as e:
                     print(e)
 
+    def wire_gates(self):
+        for gate in self.gates:
+            for bus in gate.inputs:
+                if bus in self.buses.keys():
+                    gate.input_busses.append(self.buses[bus])
+                # When one of the gates input is a number (known case 1)
+                else:
+                    gate.input_busses.append(Bus(str(uuid4()), value=int(bus)))
+
     def run(self):
         for instruction in self.circuit_intructions:
             self.add_component(parse_instruction(instruction))
 
         # update the gates with the input buses
-        for gate in self.gates:
-            for bus in gate.inputs:
-                if bus in self.buses.keys():
-                    gate.input_busses.append(self.buses[bus])
-                # When one of the gates input is 1
-                else:
-                    gate.input_busses.append(Bus(str(uuid4()), value=int(bus)))
+        self.wire_gates()
 
         for bus in self.buses.values():
             if isinstance(bus.bus_input, str) and bus.bus_input in self.buses.keys():
