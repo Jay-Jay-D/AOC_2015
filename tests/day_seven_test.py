@@ -1,5 +1,4 @@
 import pytest
-
 from aoc_2015.day_seven import Bus, Circuit, Gate, parse_instruction
 
 circuit_intructions = [
@@ -31,20 +30,25 @@ gates_cases = [
     pytest.param("NOT y -> i", "NOT", "i", ["y"], id="NOT y -> i"),
 ]
 
+busses_cases = [
+    pytest.param("123 -> x", "x", 123, "y", id="123 -> x"),
+    pytest.param("a -> y", "y", None, "a", id="a -> y"),
+]
 
-def test_parse_instructions_bus():
+
+@pytest.mark.parametrize("instruction,expected_name,expected_value,expected_input", busses_cases)
+def test_parse_instructions_bus(instruction, expected_name, expected_value, expected_input):
     # Arrange
-    instruction = "123 -> x"
-    expected_bus = Bus("x", 123)
+    expected_bus = Bus(expected_name, expected_value, expected_input)
     # Act
     actual_bus = parse_instruction(instruction)
     # Assert
     assert isinstance(actual_bus, Bus)
     assert expected_bus.value == actual_bus.value
-    assert expected_bus.bus_input is None
+    assert expected_bus.bus_input == expected_input
 
 
-def test_parse_instructions_bus():
+def test_parse_instructions_bus_9():
     # Arrange
     instruction = "a -> y"
     expected_bus = Bus("y", value=None, bus_input="a")
@@ -91,6 +95,24 @@ def test_add_gate():
         assert new_bus in circuit.buses.keys()
         assert circuit.buses[new_bus].value is None
         assert isinstance(circuit.buses[new_bus].bus_input, Gate)
+
+
+def test_shift_operators():
+    # Arrange
+    bus_x = Bus("x", 123)
+    shift_gate = Gate("LSHIFT-2", "d", ["x"])
+    shift_gate.input_busses = [bus_x]
+    # Act and Assert
+    assert shift_gate.activate() == 123 << 2
+
+
+def test_not_operators():
+    # Arrange
+    bus_x = Bus("x", 123)
+    not_gate = Gate("NOT", "d", ["x"])
+    not_gate.input_busses = [bus_x]
+    # Act and Assert
+    assert not_gate.activate() == 65412
 
 
 def test_operators():

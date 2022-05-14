@@ -1,23 +1,35 @@
+from curses.ascii import isdigit
 from pathlib import Path
+
+from uuid import uuid4
 
 
 def parse_instruction(instruction):
-
-    print(f"Parsing\t{instruction}")
-    op, bus = instruction.split(" -> ")
+    op, bus = instruction.strip().split(" -> ")
     op_parts = op.split(" ")
+
+    # Buses
     if len(op_parts) == 1:
-        return Bus(bus, int(op_parts[0]))
-    elif len(op_parts) == 2:
-        return Gate(op_parts[0], bus, [op_parts[1]])
-    else:
-        inputs = [op_parts[0]]
-        operator_ = op_parts[1]
-        if operator_.endswith("SHIFT"):
-            operator_ += f"-{op_parts[2]}"
+        if all(isdigit(c) for c in op_parts[0]):
+            # Case 123 -> b
+            return Bus(bus, int(op_parts[0]))
         else:
-            inputs.append(op_parts[2])
-        return Gate(operator_, bus, inputs)
+            # Case a -> b
+            return Bus(bus, bus_input=op_parts[0])
+
+    # Gate NOT
+    if len(op_parts) == 2:
+        return Gate(op_parts[0], bus, [op_parts[1]])
+
+    inputs = [op_parts[0]]
+    operator_ = op_parts[1]
+    if operator_.endswith("SHIFT"):
+        # Shift gates
+        operator_ += f"-{op_parts[2]}"
+    else:
+        # AND and OR gates
+        inputs.append(op_parts[2])
+    return Gate(operator_, bus, inputs)
 
 
 class Bus:
@@ -27,9 +39,9 @@ class Bus:
         self.bus_input = bus_input
 
     def activate(self):
-        if self.bus_input is None and self.value is None:
-            raise AttributeError(f"Unexpected Error: {self} has no Value nor Gate as input")
-        self.value = self.bus_input.activate()
+        if self.value is None:
+            self.value = self.bus_input.activate()
+        return self.value
 
     def __str__(self) -> str:
         return f"BUS {self.name}, input {self.value}"
@@ -40,7 +52,7 @@ class Gate:
         self.operator = operator
         self.output = output
         self.inputs = inputs
-        self.input_busses = None
+        self.input_busses = []
 
     def activate(self):
         for bus in self.input_busses:
@@ -51,11 +63,11 @@ class Gate:
         if self.operator == "OR":
             return self.input_busses[0].value | self.input_busses[1].value
         if self.operator == "NOT":
-            return ~self.input_busses[0].value
+            return ~self.input_busses[0].value & 0xFFFF
         if self.operator.startswith("LSHIFT"):
-            return ~self.input_busses[0].value << int(self.operator.split("-")[1])
+            return self.input_busses[0].value << int(self.operator.split("-")[1])
         if self.operator.startswith("RSHIFT"):
-            return ~self.input_busses[0].value >> int(self.operator.split("-")[1])
+            return self.input_busses[0].value >> int(self.operator.split("-")[1])
 
 
 class Circuit:
@@ -79,22 +91,23 @@ class Circuit:
                 except Exception as e:
                     print(e)
 
-            for input_ in component.inputs:
-                if input_ not in self.buses.keys():
-                    self.buses[input_] = Bus(input_)
-
     def run(self):
         for instruction in self.circuit_intructions:
             self.add_component(parse_instruction(instruction))
 
         # update the gates with the input buses
         for gate in self.gates:
-            gate.input_busses = [self.buses[bus] for bus in gate.inputs]
+            for bus in gate.inputs:
+                if bus in self.buses.keys():
+                    gate.input_busses.append(self.buses[bus])
+                # When one of the gates input is 1
+                else:
+                    gate.input_busses.append(Bus(str(uuid4()), value=int(bus)))
 
         for bus in self.buses.values():
-            if bus.value is None:
-                bus.activate()
-            self.state[bus.name] = bus.value
+            if isinstance(bus.bus_input, str) and bus.bus_input in self.buses.keys():
+                bus.bus_input = self.buses[bus.bus_input]
+            self.state[bus.name] = bus.activate()
 
 
 if __name__ == "__main__":
@@ -103,3 +116,4 @@ if __name__ == "__main__":
     circuit = Circuit(circuit_instructions)
     # Act
     circuit.run()
+    print(circuit.state["a"])
