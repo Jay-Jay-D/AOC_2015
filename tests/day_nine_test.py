@@ -1,4 +1,5 @@
-from aoc_2015.day_nine import find_shortest_path, generate_distance_matrix
+import pytest
+from aoc_2015.day_nine import find_path, generate_distance_matrix
 
 
 distances = ["London to Dublin = 464", "London to Belfast = 518", "Dublin to Belfast = 141"]
@@ -17,10 +18,17 @@ def test_distance_matrix():
     assert distance_matrix[2][1] == 141
 
 
-def test_find_shortest_path():
+cases = [
+    pytest.param(True, 605, id="Shortest path case"),
+    pytest.param(False, 982, id="Longest path case"),
+]
+
+
+@pytest.mark.parametrize("shortest,expected_distance", cases)
+def test_find_shortest_path(shortest, expected_distance):
     # Arrange
     distance_matrix, _ = generate_distance_matrix(distances)
     # Act
-    shortest_path = find_shortest_path(distance_matrix)
+    actual_distance, _ = find_path(distance_matrix, shortest)
     # Assert
-    assert shortest_path == 605
+    assert actual_distance == expected_distance
