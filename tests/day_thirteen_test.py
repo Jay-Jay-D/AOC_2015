@@ -1,6 +1,6 @@
 import pytest
 
-from aoc_2015.day_thirteen import generate_matrix, parse_line
+from aoc_2015.day_thirteen import generate_matrix, get_optimal_seating_arrangement, parse_line
 
 potential_happiness = [
     "Alice would gain 54 happiness units by sitting next to Bob.",
@@ -50,10 +50,9 @@ def test_generate_matrix():
 
 def test_get_optimal_seating_arrangement():
     # Arrange
-    expected_seating_arrangement = ["David", "Alice", "Bob", "Carol"]
-    # Act and Assert
-    assert get_optimal_seating_arrangement(potential_happiness) == expected_seating_arrangement
-
-
-def get_optimal_seating_arrangement(potential_happiness):
-    return None
+    expected_seating_arrangement = ["Alice", "Bob", "Carol", "David"]
+    # Act
+    max_happiness_arrange, max_happiness = get_optimal_seating_arrangement(potential_happiness)
+    # Assert
+    assert max_happiness_arrange == expected_seating_arrangement
+    assert max_happiness == 330
