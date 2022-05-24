@@ -51,8 +51,11 @@ def test_generate_matrix():
 def test_get_optimal_seating_arrangement():
     # Arrange
     expected_seating_arrangement = ["Alice", "Bob", "Carol", "David"]
+    happiness_matrix, index_to_name = generate_matrix(potential_happiness)
     # Act
-    max_happiness_arrange, max_happiness = get_optimal_seating_arrangement(potential_happiness)
+    max_happiness_arrange, max_happiness = get_optimal_seating_arrangement(
+        happiness_matrix, index_to_name
+    )
     # Assert
     assert max_happiness_arrange == expected_seating_arrangement
     assert max_happiness == 330

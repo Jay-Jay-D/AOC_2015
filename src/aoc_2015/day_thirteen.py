@@ -35,8 +35,7 @@ def generate_matrix(potential_happiness):
     return happiness_matrix, index_to_name
 
 
-def get_optimal_seating_arrangement(potential_happiness):
-    happiness_matrix, index_to_name = generate_matrix(potential_happiness)
+def get_optimal_seating_arrangement(happiness_matrix, index_to_name):
     guests_count = len(index_to_name)
     max_happiness = -inf
     max_happiness_arrange = None
@@ -58,6 +57,21 @@ def get_optimal_seating_arrangement(potential_happiness):
 if __name__ == "__main__":
     input_file = Path("./src/aoc_2015/input/day_thirteen.txt")
     potential_happiness = input_file.open().readlines()
-    max_happiness_arrange, max_happiness = get_optimal_seating_arrangement(potential_happiness)
+    happiness_matrix, index_to_name = generate_matrix(potential_happiness)
+
+    max_happiness_arrange, max_happiness = get_optimal_seating_arrangement(
+        happiness_matrix, index_to_name
+    )
     print(f"Part 1: Best arrange {' -> '.join(max_happiness_arrange)}")
-    print(f"Part 1: Best arrange happiness {max_happiness}")
+    print(f"Part 1: Best arrange happiness {max_happiness}\n")
+
+    guest_count = len(index_to_name)
+    happiness_matrix.append([0] * guest_count)
+    for row in happiness_matrix:
+        row.append(0)
+    index_to_name[guest_count] = "Me"
+    max_happiness_arrange, max_happiness = get_optimal_seating_arrangement(
+        happiness_matrix, index_to_name
+    )
+    print(f"Part 2: Best arrange {' -> '.join(max_happiness_arrange)}")
+    print(f"Part 2: Best arrange happiness {max_happiness}")
