@@ -5,19 +5,10 @@ from pathlib import Path
 
 class Race:
     def __init__(self, reindeer_specs):
-        self.reindeers = []
+        self.reindeers = [
+            Reindeer.generate_from_specs(reindeer_spec) for reindeer_spec in reindeer_specs
+        ]
         self.wining_reindeer = None
-        for reindeer_spec in reindeer_specs:
-            name, speed, run_lenght, rest = self.parse_reindeer_spec(reindeer_spec)
-            self.reindeers.append(Reindeer(name, speed, run_lenght, rest))
-
-    def parse_reindeer_spec(self, reindeer_spec):
-        parts = reindeer_spec.strip().split(" ")
-        name = parts[0]
-        speed = int(parts[3])
-        run_lenght = int(parts[6])
-        rest = int(parts[-2])
-        return name, speed, run_lenght, rest
 
     def advance_second(self):
         max_distance = -inf
@@ -50,6 +41,15 @@ class Reindeer:
         self.distance = 0
         self.points = 0
         self.lap_time = 0
+
+    @classmethod
+    def generate_from_specs(cls, reindeer_spec):
+        parts = reindeer_spec.strip().split(" ")
+        name = parts[0]
+        speed = int(parts[3])
+        run_lenght = int(parts[6])
+        rest = int(parts[-2])
+        return cls(name, speed, run_lenght, rest)
 
     def advance_second(self):
         self.lap_time += 1
