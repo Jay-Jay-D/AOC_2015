@@ -3,10 +3,11 @@ from pathlib import Path
 
 
 def get_next_step(state, corners_stuck=False):
-    next_state = []
-    for row_idx, row in enumerate(state):
-        new_row = [check_light(state, row_idx, col_idx) for col_idx in range(len(row))]
-        next_state.append(new_row)
+    next_state = [
+        [check_light(state, row_idx, col_idx) for col_idx in range(len(row))]
+        for row_idx, row in enumerate(state)
+    ]
+
     if corners_stuck:
         next_state[0][0] = 1
         next_state[0][-1] = 1
@@ -30,7 +31,7 @@ def check_light(state, row_idx, col_idx):
 
 
 def parse_grid(state):
-    return [[1 if light == "#" else 0 for light in row] for row in state]
+    return [[int(light == "#") for light in row] for row in state]
 
 
 def run_grid(initial_state, steps, corners_stuck=False):
