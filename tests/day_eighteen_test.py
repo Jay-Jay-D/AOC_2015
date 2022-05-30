@@ -1,3 +1,4 @@
+import itertools
 import pytest
 
 initial_state = [
@@ -43,35 +44,25 @@ def test_get_next_state():
 
 
 def get_next_step(state):
-    rows = len(state)
-    cols = len(state[0])
     next_state = []
     for row_idx, row in enumerate(state):
-        new_row = []
-        up = max(0, row_idx - 1)
-        down = min(rows, row_idx + 2)
-        for col_idx, light in enumerate(row):
-            left = max(0, col_idx - 1)
-            rigth = min(cols, col_idx + 2)
-
-            lights_sum = 0
-            for x in range(left, rigth):
-                for y in range(up, down):
-                    lights_sum += state[y][x]
-            lights_sum -= light
-
-            if light:
-                if lights_sum in [2, 3]:
-                    new_row.append(1)
-                else:
-                    new_row.append(0)
-            else:
-                if lights_sum == 3:
-                    new_row.append(1)
-                else:
-                    new_row.append(0)
+        new_row = [check_light(state, row_idx, col_idx) for col_idx in range(len(row))]
         next_state.append(new_row)
     return next_state
+
+
+def check_light(state, row_idx, col_idx):
+    rows = len(state)
+    cols = len(state[0])
+    light = state[row_idx][col_idx]
+    up = max(0, row_idx - 1)
+    down = min(rows, row_idx + 2)
+    left = max(0, col_idx - 1)
+    rigth = min(cols, col_idx + 2)
+    lights_sum = (
+        sum(state[r][c] for r, c in itertools.product(range(up, down), range(left, rigth))) - light
+    )
+    return int(light and lights_sum in [2, 3] or not light and lights_sum == 3)
 
 
 def parse_grid(state):
