@@ -3,7 +3,7 @@ from collections import defaultdict
 
 def find_combinations(volume, containers_sizes):
     combinations_count = 0
-    container_count = defaultdict(int)
+    container_counts = defaultdict(int)
     containers = len(containers_sizes)
     for combination_number in range(1 << containers):
         binary_representation = f"{combination_number:0{containers}b}"
@@ -16,9 +16,9 @@ def find_combinations(volume, containers_sizes):
 
         if combination_sum == volume:
             combinations_count += 1
-            container_count[container_count] += 1
+            container_counts[container_count] += 1
 
-    return combinations_count, container_count[min(container_count.keys())]
+    return combinations_count, container_counts[min(container_counts.keys())]
 
 
 if __name__ == "__main__":
