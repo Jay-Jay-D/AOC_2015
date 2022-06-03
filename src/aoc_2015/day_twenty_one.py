@@ -38,8 +38,11 @@ class Match:
     def run_turn(self):
         attacker = self.players[int(not self._player_turn)]
         defender = self.players[int(self._player_turn)]
-        defender.hp -= max((attacker.damage - defender.armor), 1)
+        self.attack(attacker, defender)
         self._player_turn = not self._player_turn
+
+    def attack(self, attacker, defender):
+        defender.hp -= max((attacker.damage - defender.armor), 1)
 
     def run_match(self):
         while all(p.hp > 0 for p in self.players):
