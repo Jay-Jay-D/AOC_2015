@@ -38,34 +38,39 @@ class Wizard(Player):
     spells: list[Spell] = field(default_factory=list)
     spell_cast_order: list[str] = field(default_factory=list)
     cast_counter = 0
-    active_spells: dict[Spell, int] = field(default_factory=dict)
+    active_spells: dict[str, int] = field(default_factory=dict)
+    _spells_by_name: dict[str, Spell] = field(default_factory=dict)
+
+    def __post_init__(self):
+        for s in self.spells:
+            self._spells_by_name[s.name] = s
 
     def cast_spell(self):
         final_effect = Effect()
         # Update turn count in active spells
-        for spell in self.active_spells:
-            self.active_spells[spell] += 1
+        for spell_name in self.active_spells:
+            self.active_spells[spell_name] += 1
 
-        casted_spell = self.spells[self.cast_counter]
+        casted_spell = self._spells_by_name[self.spell_cast_order[self.cast_counter]]
         self.cast_counter += 1
         self.mana -= casted_spell.mana_cost
 
         if casted_spell.effect.turns > 1:
-            self.active_spells[casted_spell] = 0
+            self.active_spells[casted_spell.name] = 0
         else:
             final_effect += casted_spell.effect
 
-        for spell, effect_turns in self.active_spells.items():
+        for spell_name, effect_turns in self.active_spells.items():
             if effect_turns == 0:
                 # if effect_turns is zero, do nothing.
                 # The effect will activate in the next turn.
                 continue
 
-            final_effect += spell.effect
-            self.active_spells[spell] += 1
+            final_effect += self._spells_by_name[spell_name].effect
+            self.active_spells[spell_name] += 1
             # Finally, clean affects after turns count passed.
-            if self.active_spells[spell] == spell.effect.turns:
-                del self.active_spells[spell]
+            if self.active_spells[spell_name] == self._spells_by_name[spell_name].effect.turns:
+                del self.active_spells[spell_name]
         return final_effect
 
 
@@ -85,7 +90,7 @@ class MatchV2(Match):
 if __name__ == "__main__":
     spells = [Spell(name="Magic Misile", mana_cost=53, effect=Effect(damage=4))]
     player = Wizard(
-        spells=[Spells.Drain, Spells.MagicMisile], spell_cast_order=["Poison", "Magic Misile"]
+        spells=[Spells.Poison, Spells.MagicMisile], spell_cast_order=["Poison", "Magic Misile"]
     )
     boss = Player()
     arena = MatchV2(player, boss)

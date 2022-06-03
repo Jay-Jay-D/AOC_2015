@@ -19,7 +19,7 @@ spells_cases = [
         id="Double effect spell case",
     ),
     pytest.param(
-        [Spells.Drain, Spells.MagicMisile],
+        [Spells.Poison, Spells.MagicMisile],
         ["Poison", "Magic Misile"],
         4,
         {"Boss": {"hp": 87}, "Player": {"mana": 274, "hp": 98}},
