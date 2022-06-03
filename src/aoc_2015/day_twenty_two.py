@@ -45,12 +45,28 @@ class Wizard(Player):
         for s in self.spells:
             self._spells_by_name[s.name] = s
 
-    def cast_spell(self):
-        final_effect = Effect()
+    def update_active_spells(self):
+        # Finally, clean affects after turns count passed.
+        for spell_name in self.active_spells:
+            if self.active_spells[spell_name] == self._spells_by_name[spell_name].effect.turns:
+                del self.active_spells[spell_name]
+
         # Update turn count in active spells
         for spell_name in self.active_spells:
             self.active_spells[spell_name] += 1
 
+    def get_active_spells(self):
+        active_spells_effect = Effect()
+        for spell_name, effect_turns in self.active_spells.items():
+            if effect_turns == 0:
+                # if effect_turns is zero, do nothing.
+                # The effect will activate in the next turn.
+                continue
+            active_spells_effect += self._spells_by_name[spell_name].effect
+        return active_spells_effect
+
+    def cast_spell(self):
+        cast_spell_effect = Effect()
         casted_spell = self._spells_by_name[self.spell_cast_order[self.cast_counter]]
         self.cast_counter += 1
         self.mana -= casted_spell.mana_cost
@@ -58,33 +74,29 @@ class Wizard(Player):
         if casted_spell.effect.turns > 1:
             self.active_spells[casted_spell.name] = 0
         else:
-            final_effect += casted_spell.effect
+            cast_spell_effect += casted_spell.effect
 
-        for spell_name, effect_turns in self.active_spells.items():
-            if effect_turns == 0:
-                # if effect_turns is zero, do nothing.
-                # The effect will activate in the next turn.
-                continue
-
-            final_effect += self._spells_by_name[spell_name].effect
-            self.active_spells[spell_name] += 1
-            # Finally, clean affects after turns count passed.
-            if self.active_spells[spell_name] == self._spells_by_name[spell_name].effect.turns:
-                del self.active_spells[spell_name]
-        return final_effect
+        return cast_spell_effect
 
 
 class MatchV2(Match):
     def attack(self, attacker, defender):
+        # Player zero is always Little Henry Case, the Wizard
+        effects = self.players[0].get_active_spells()
         # Player's turn
         if isinstance(attacker, Wizard):
-            effects = attacker.cast_spell()
-            defender.hp -= max((effects.damage), 1)
+            effects += attacker.cast_spell()
             attacker.hp += effects.heals
             attacker.mana += effects.mana
             attacker.armor += effects.armor
-            return
-        return super().attack(attacker, defender)
+
+        defender.hp -= effects.damage
+
+        self.players[0].update_active_spells()
+
+        # If it's Boss turn, then make it attack
+        if not isinstance(attacker, Wizard):
+            return super().attack(attacker, defender)
 
 
 if __name__ == "__main__":
