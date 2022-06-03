@@ -1,3 +1,4 @@
+from asyncio import shield
 from dataclasses import dataclass, field
 from aoc_2015.day_twenty_one import Match, Player
 
@@ -30,6 +31,7 @@ class Spells:
     MagicMisile = Spell(name="Magic Misile", mana_cost=53, effect=Effect(damage=4))
     Drain = Spell(name="Drain", mana_cost=73, effect=Effect(damage=2, heals=2))
     Poison = Spell(name="Poison", mana_cost=173, effect=Effect(damage=3, turns=6))
+    Shield = Spell(name="Shield", mana_cost=113, effect=Effect(armor=7, turns=6))
 
 
 @dataclass
@@ -86,11 +88,11 @@ class MatchV2(Match):
         # Player's turn
         if isinstance(attacker, Wizard):
             effects += attacker.cast_spell()
-            attacker.hp += effects.heals
-            attacker.mana += effects.mana
-            attacker.armor += effects.armor
 
-        defender.hp -= effects.damage
+        self.players[0].hp += effects.heals
+        self.players[0].mana += effects.mana
+        self.players[0].armor += effects.armor
+        self.players[1].hp -= effects.damage
 
         self.players[0].update_active_spells()
 

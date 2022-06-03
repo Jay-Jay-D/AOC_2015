@@ -25,22 +25,14 @@ spells_cases = [
         {"Boss": {"hp": 87}, "Player": {"mana": 274, "hp": 98}},
         id="Poison spell lasting effect case",
     ),
+    pytest.param(
+        [Spell(name="Poison", mana_cost=10, effect=Effect(damage=5, turns=2)), Spells.MagicMisile],
+        ["Poison", "Magic Misile"],
+        4,
+        {"Boss": {"hp": 86}, "Player": {"mana": 437, "hp": 98}},
+        id="Poison spell lasting effect case until it ends.",
+    ),
 ]
-
-
-@pytest.mark.parametrize("spells,spell_cast_order,turns,expected_stats", spells_cases)
-def test_cast_spell(spells, spell_cast_order, turns, expected_stats):
-    # Arrange
-    player = Wizard(spells=spells, spell_cast_order=spell_cast_order)
-    boss = Player()
-    arena = MatchV2(player, boss)
-    # Act
-    [arena.run_turn() for _ in range(turns)]
-    # Assert
-    actual_stats = {"Boss": asdict(boss), "Player": asdict(player)}
-    for player, stats in expected_stats.items():
-        for stat in stats:
-            assert expected_stats[player][stat] == actual_stats[player][stat]
 
 
 def test_sum_effects():
@@ -57,3 +49,18 @@ def test_sum_effects():
     effect_d += effect_b
     assert effect_d == effect_d
     assert effect_d + effect_e == Effect(damage=2, heals=2, mana=50)
+
+
+@pytest.mark.parametrize("spells,spell_cast_order,turns,expected_stats", spells_cases)
+def test_cast_spell(spells, spell_cast_order, turns, expected_stats):
+    # Arrange
+    player = Wizard(spells=spells, spell_cast_order=spell_cast_order)
+    boss = Player()
+    arena = MatchV2(player, boss)
+    # Act
+    [arena.run_turn() for _ in range(turns)]
+    # Assert
+    actual_stats = {"Boss": asdict(boss), "Player": asdict(player)}
+    for player, stats in expected_stats.items():
+        for stat in stats:
+            assert expected_stats[player][stat] == actual_stats[player][stat]
