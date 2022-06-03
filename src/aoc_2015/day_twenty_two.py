@@ -49,7 +49,7 @@ class Wizard(Player):
 
     def update_active_spells(self):
         # Finally, clean affects after turns count passed.
-        for spell_name in self.active_spells:
+        for spell_name in list(self.active_spells.keys()):
             if self.active_spells[spell_name] == self._spells_by_name[spell_name].effect.turns:
                 del self.active_spells[spell_name]
 
@@ -102,10 +102,12 @@ class MatchV2(Match):
 
 
 if __name__ == "__main__":
-    spells = [Spell(name="Magic Misile", mana_cost=53, effect=Effect(damage=4))]
-    player = Wizard(
-        spells=[Spells.Poison, Spells.MagicMisile], spell_cast_order=["Poison", "Magic Misile"]
-    )
+    spells = [
+        Spell(name="Poison", mana_cost=10, effect=Effect(damage=5, turns=2)),
+        Spells.MagicMisile,
+    ]
+    spell_cast_order = ["Poison", "Magic Misile"]
+    player = Wizard(spells=spells, spell_cast_order=spell_cast_order)
     boss = Player()
     arena = MatchV2(player, boss)
     # Act
