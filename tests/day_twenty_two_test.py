@@ -47,6 +47,17 @@ spells_cases = [
         {"Boss": {"hp": 95}, "Player": {"mana": 350, "armor": 0, "hp": 85}},
         id="Shield spell case, lasting effect armor stats.",
     ),
+    pytest.param(
+        [
+            Spell(name="Recharge", mana_cost=10, effect=Effect(mana=50, turns=2)),
+            Spell(name="Magic Misile", mana_cost=50, effect=Effect(damage=5)),
+        ],
+        ["Recharge", "Magic Misile"],
+        4,
+        {"damage": 10},
+        {"Boss": {"hp": 95}, "Player": {"mana": 540, "hp": 80}},
+        id="Shield spell case, lasting effect armor stats.",
+    ),
 ]
 
 
