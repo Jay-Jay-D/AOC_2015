@@ -48,7 +48,7 @@ class Match:
         while all(p.hp > 0 for p in self.players):
             self.run_turn()
             self.turns += 1
-        self.winner = "Boss" if self._player_turn else "Player"
+        self.winner = "Boss" if self.players[1].hp > 0 else "Player"
 
 
 class Store:

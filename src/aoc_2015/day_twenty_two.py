@@ -32,6 +32,7 @@ class Spells:
     Shield = Spell(name="Shield", mana_cost=113, effect=Effect(armor=7, turns=6))
     Poison = Spell(name="Poison", mana_cost=173, effect=Effect(damage=3, turns=6))
     Recharge = Spell(name="Recharge", mana_cost=229, effect=Effect(mana=101, turns=5))
+    All = [MagicMisile, Drain, Shield, Poison, Recharge]
 
 
 @dataclass
@@ -97,21 +98,22 @@ class MatchV2(Match):
         effects = self.players[0].wizard_turn(isinstance(attacker, Wizard))
 
         self.players[1].hp -= effects.damage
-
-        # If it's Boss turn, then make it attack
-        if not isinstance(attacker, Wizard):
+        # If it's Boss turn, then make him attack.
+        if not isinstance(attacker, Wizard) and self.players[1].hp > 0:
             return super().attack(attacker, defender)
 
 
 if __name__ == "__main__":
-    spells = [
-        Spell(name="Poison", mana_cost=10, effect=Effect(damage=5, turns=2)),
-        Spells.MagicMisile,
-    ]
     spell_cast_order = ["Poison", "Magic Misile"]
-    player = Wizard(spells=spells, spell_cast_order=spell_cast_order)
-    boss = Player()
+    player_stats = {
+        "hp": 10,
+        "mana": 250,
+        "spells": Spells.All,
+        "spell_cast_order": spell_cast_order,
+    }
+    boss_stats = {"hp": 13, "damage": 8}
+    player = Wizard(**player_stats)
+    boss = Player(**boss_stats)
     arena = MatchV2(player, boss)
     # Act
-    for _ in range(4):
-        arena.run_turn()
+    arena.run_match()

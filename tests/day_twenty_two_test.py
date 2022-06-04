@@ -3,7 +3,7 @@ import pytest
 from aoc_2015.day_twenty_one import Player
 from aoc_2015.day_twenty_two import Effect, MatchV2, Spell, Spells, Wizard
 
-spells_cases = [
+spells_test_cases = [
     pytest.param(
         [Spells.MagicMisile],
         ["Magic Misile"],
@@ -77,7 +77,9 @@ def test_sum_effects():
     assert effect_d + effect_e == Effect(damage=2, heals=2, mana=50)
 
 
-@pytest.mark.parametrize("spells,spell_cast_order,turns,boss_stats,expected_stats", spells_cases)
+@pytest.mark.parametrize(
+    "spells,spell_cast_order,turns,boss_stats,expected_stats", spells_test_cases
+)
 def test_cast_spell(spells, spell_cast_order, turns, boss_stats, expected_stats):
     # Arrange
     player = Wizard(spells=spells, spell_cast_order=spell_cast_order)
@@ -88,6 +90,54 @@ def test_cast_spell(spells, spell_cast_order, turns, boss_stats, expected_stats)
     # Act
     [arena.run_turn() for _ in range(turns)]
     # Assert
+    actual_stats = {"Boss": asdict(boss), "Player": asdict(player)}
+    for player, stats in expected_stats.items():
+        for stat in stats:
+            assert expected_stats[player][stat] == actual_stats[player][stat]
+
+
+battles_cases = [
+    pytest.param(
+        {
+            "hp": 10,
+            "mana": 250,
+            "spells": Spells.All,
+            "spell_cast_order": ["Poison", "Magic Misile"],
+        },
+        {"hp": 13, "damage": 8},
+        "Player",
+        4,
+        {"Boss": {"hp": 0}, "Player": {"mana": 24, "hp": 2}},
+        id="Battle 1",
+    ),
+    pytest.param(
+        {
+            "hp": 10,
+            "mana": 250,
+            "spells": Spells.All,
+            "spell_cast_order": ["Recharge", "Shield", "Drain", "Poison", "Magic Misile"],
+        },
+        {"hp": 14, "damage": 8},
+        "Player",
+        10,
+        {"Boss": {"hp": -1}, "Player": {"mana": 114, "hp": 1}},
+        id="Battle 2",
+    ),
+]
+
+
+@pytest.mark.parametrize("player_stats,boss_stats,winner,turns,expected_stats", battles_cases)
+def test_run_match(player_stats, boss_stats, winner, turns, expected_stats):
+    # Arrange
+    player = Wizard(**player_stats)
+    boss = Player(**boss_stats)
+    arena = MatchV2(player, boss)
+    # Act
+    arena.run_match()
+    # Assert
+    assert arena.turns == turns
+    assert arena.winner == winner
+
     actual_stats = {"Boss": asdict(boss), "Player": asdict(player)}
     for player, stats in expected_stats.items():
         for stat in stats:
