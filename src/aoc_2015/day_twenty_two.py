@@ -50,9 +50,13 @@ class Wizard(Player):
             self._spells_by_name[s.name] = s
 
     def wizard_turn(self, is_attacking):
-        effects = self.get_active_spells()
+        effects = Effect()
         if is_attacking:
-            effects += self.cast_spell()
+            casted_spell_effect = self.cast_spell()
+            if casted_spell_effect is None:
+                return effects
+            effects += casted_spell_effect
+        effects += self.get_active_spells()
         self.hp += effects.heals
         self.mana += effects.mana
         self.armor = effects.armor if "Shield" in self.active_spells else self._base_armor
@@ -82,6 +86,9 @@ class Wizard(Player):
     def cast_spell(self):
         cast_spell_effect = Effect()
         casted_spell = self._spells_by_name[self.spell_cast_order[self.cast_counter]]
+        if self.mana < casted_spell.mana_cost:
+            self.hp = 0
+            return None
         self.cast_counter += 1
         self.mana -= casted_spell.mana_cost
 
@@ -106,12 +113,12 @@ class MatchV2(Match):
 if __name__ == "__main__":
     spell_cast_order = ["Poison", "Magic Misile"]
     player_stats = {
-        "hp": 10,
-        "mana": 250,
+        "hp": 50,
+        "mana": 500,
         "spells": Spells.All,
         "spell_cast_order": spell_cast_order,
     }
-    boss_stats = {"hp": 13, "damage": 8}
+    boss_stats = {"hp": 71, "damage": 10}
     player = Wizard(**player_stats)
     boss = Player(**boss_stats)
     arena = MatchV2(player, boss)

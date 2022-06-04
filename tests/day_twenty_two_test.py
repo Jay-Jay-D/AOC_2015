@@ -123,6 +123,19 @@ battles_cases = [
         {"Boss": {"hp": -1}, "Player": {"mana": 114, "hp": 1}},
         id="Battle 2",
     ),
+    pytest.param(
+        {
+            "hp": 10,
+            "mana": 50,
+            "spells": Spells.All,
+            "spell_cast_order": ["Magic Misile"],
+        },
+        {"hp": 10},
+        "Boss",
+        1,
+        {"Boss": {"hp": 10}, "Player": {"mana": 50, "hp": 0}},
+        id="Battle 3 - Player runs out of mana.",
+    ),
 ]
 
 
