@@ -37,15 +37,28 @@ class Spells:
 @dataclass
 class Wizard(Player):
     mana: int = 500
+    cast_counter: int = 0
     spells: list[Spell] = field(default_factory=list)
     spell_cast_order: list[str] = field(default_factory=list)
-    cast_counter = 0
     active_spells: dict[str, int] = field(default_factory=dict)
     _spells_by_name: dict[str, Spell] = field(default_factory=dict)
+    _base_armor: int = 0
 
     def __post_init__(self):
         for s in self.spells:
             self._spells_by_name[s.name] = s
+
+    def wizard_turn(self, is_attacking):
+        effects = self.get_active_spells()
+        if is_attacking:
+            effects += self.cast_spell()
+        self.hp += effects.heals
+        self.mana += effects.mana
+
+        self.armor = effects.armor if "Shield" in self.active_spells else self._base_armor
+
+        self.update_active_spells()
+        return effects
 
     def update_active_spells(self):
         # Finally, clean affects after turns count passed.
@@ -83,18 +96,9 @@ class Wizard(Player):
 
 class MatchV2(Match):
     def attack(self, attacker, defender):
-        # Player zero is always Little Henry Case, the Wizard
-        effects = self.players[0].get_active_spells()
-        # Player's turn
-        if isinstance(attacker, Wizard):
-            effects += attacker.cast_spell()
+        effects = self.players[0].wizard_turn(isinstance(attacker, Wizard))
 
-        self.players[0].hp += effects.heals
-        self.players[0].mana += effects.mana
-        self.players[0].armor += effects.armor
         self.players[1].hp -= effects.damage
-
-        self.players[0].update_active_spells()
 
         # If it's Boss turn, then make it attack
         if not isinstance(attacker, Wizard):
