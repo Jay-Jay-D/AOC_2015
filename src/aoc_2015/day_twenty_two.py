@@ -50,6 +50,7 @@ class Wizard(Player):
             self._spells_by_name[s.name] = s
 
     def wizard_turn(self, is_attacking):
+        # effects = self.get_active_spells()
         effects = Effect()
         if is_attacking:
             casted_spell_effect = self.cast_spell()
@@ -66,17 +67,17 @@ class Wizard(Player):
     def update_active_spells(self):
         # Finally, clean affects after turns count passed.
         for spell_name in list(self.active_spells.keys()):
-            if self.active_spells[spell_name] == self._spells_by_name[spell_name].effect.turns:
+            if self.active_spells[spell_name] == 0:
                 del self.active_spells[spell_name]
 
         # Update turn count in active spells
         for spell_name in self.active_spells:
-            self.active_spells[spell_name] += 1
+            self.active_spells[spell_name] -= 1
 
     def get_active_spells(self):
         active_spells_effect = Effect()
         for spell_name, effect_turns in self.active_spells.items():
-            if effect_turns == 0:
+            if effect_turns == self._spells_by_name[spell_name].effect.turns:
                 # if effect_turns is zero, do nothing.
                 # The effect will activate in the next turn.
                 continue
@@ -86,15 +87,26 @@ class Wizard(Player):
     def cast_spell(self):
         cast_spell_effect = Effect()
         casted_spell = self._spells_by_name[self.spell_cast_order[self.cast_counter]]
-        if self.mana < casted_spell.mana_cost:
+
+        if self.mana < casted_spell.mana_cost or (
+            casted_spell.name in self.active_spells and self.active_spells[casted_spell.name] > 0
+        ):
             self.hp = 0
             return None
+
         self.cast_counter += 1
         self.mana -= casted_spell.mana_cost
 
+        is_spell_last_turn = (
+            casted_spell.name in self.active_spells and self.active_spells[casted_spell.name] == 0
+        )
+
         if casted_spell.effect.turns > 1:
-            self.active_spells[casted_spell.name] = 0
+            self.active_spells[casted_spell.name] = casted_spell.effect.turns
         else:
+            cast_spell_effect += casted_spell.effect
+
+        if is_spell_last_turn:
             cast_spell_effect += casted_spell.effect
 
         return cast_spell_effect
@@ -119,6 +131,18 @@ if __name__ == "__main__":
         "spell_cast_order": spell_cast_order,
     }
     boss_stats = {"hp": 71, "damage": 10}
+
+    player_stats = {
+        "hp": 15,
+        "mana": 100,
+        "spells": [
+            Spells.MagicMisile,
+            Spell(name="Poison", mana_cost=10, effect=Effect(damage=5, turns=4)),
+        ],
+        "spell_cast_order": ["Poison", "Magic Misile", "Poison"],
+    }
+    boss_stats = {"hp": 100, "damage": 5}
+
     player = Wizard(**player_stats)
     boss = Player(**boss_stats)
     arena = MatchV2(player, boss)

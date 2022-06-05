@@ -136,6 +136,36 @@ battles_cases = [
         {"Boss": {"hp": 10}, "Player": {"mana": 50, "hp": 0}},
         id="Battle 3 - Player runs out of mana.",
     ),
+    pytest.param(
+        {
+            "hp": 10,
+            "mana": 500,
+            "spells": Spells.All,
+            "spell_cast_order": ["Poison", "Poison"],
+        },
+        {"hp": 100},
+        "Boss",
+        3,
+        {"Boss": {"hp": 97}, "Player": {"mana": 327, "hp": 0}},
+        id="Battle 4 - Wizard cannot call an spell while its effect is still active.",
+    ),
+    pytest.param(
+        {
+            "hp": 15,
+            "mana": 100,
+            "spells": [
+                Spells.MagicMisile,
+                Spell(name="Poison", mana_cost=10, effect=Effect(damage=5, turns=4)),
+            ],
+            "spell_cast_order": ["Poison", "Magic Misile", "Poison"],
+        },
+        {"hp": 100, "damage": 5},
+        "Boss",
+        6,
+        {"Boss": {"hp": 71}, "Player": {"mana": 27, "hp": 0}},
+        id="Battle 5 - However, effects can be started on the same turn they end.",
+        # marks=pytest.mark.skip,
+    ),
 ]
 
 
