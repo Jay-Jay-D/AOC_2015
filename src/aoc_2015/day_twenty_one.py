@@ -44,11 +44,14 @@ class Match:
     def attack(self, attacker, defender):
         defender.hp -= max((attacker.damage - defender.armor), 1)
 
-    def run_match(self):
-        while all(p.hp > 0 for p in self.players):
+    def run_match(self, turns=inf):
+        while all(p.hp > 0 for p in self.players) and self.turns < turns:
             self.run_turn()
             self.turns += 1
-        self.winner = "Boss" if self.players[1].hp > 0 else "Player"
+
+        if any(p.hp <= 0 for p in self.players):
+            self.winner = "Boss" if self.players[1].hp > 0 else "Player"
+        return self.winner
 
 
 class Store:

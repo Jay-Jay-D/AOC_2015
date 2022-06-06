@@ -88,8 +88,10 @@ def test_cast_spell(spells, spell_cast_order, turns, boss_stats, expected_stats)
         boss = Player(**boss_stats)
     arena = MatchV2(player, boss)
     # Act
-    [arena.run_turn() for _ in range(turns)]
+    # [arena.run_turn() for _ in range(turns)]
+    arena.run_match(turns)
     # Assert
+    assert arena.winner is None
     actual_stats = {"Boss": asdict(boss), "Player": asdict(player)}
     for player, stats in expected_stats.items():
         for stat in stats:

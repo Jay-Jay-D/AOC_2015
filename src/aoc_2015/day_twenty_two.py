@@ -33,17 +33,19 @@ class Spells:
     Poison = Spell(name="Poison", mana_cost=173, effect=Effect(damage=3, turns=6))
     Recharge = Spell(name="Recharge", mana_cost=229, effect=Effect(mana=101, turns=5))
     All = [MagicMisile, Drain, Shield, Poison, Recharge]
+    ByName = {s.name: s for s in All}
 
 
 @dataclass
 class Wizard(Player):
     mana: int = 500
     cast_counter: int = 0
+    mana_usage = 0
     spells: list[Spell] = field(default_factory=list)
     spell_cast_order: list[str] = field(default_factory=list)
     active_spells: dict[str, int] = field(default_factory=dict)
-    _spells_by_name: dict[str, Spell] = field(default_factory=dict)
     _base_armor: int = 0
+    _spells_by_name: dict[str, Spell] = field(default_factory=dict)
 
     def __post_init__(self):
         for s in self.spells:
@@ -86,6 +88,7 @@ class Wizard(Player):
 
     def cast_spell(self):
         cast_spell_effect = Effect()
+
         casted_spell = self._spells_by_name[self.spell_cast_order[self.cast_counter]]
 
         if self.mana < casted_spell.mana_cost or (
@@ -96,6 +99,7 @@ class Wizard(Player):
 
         self.cast_counter += 1
         self.mana -= casted_spell.mana_cost
+        self.mana_usage += casted_spell.mana_cost
 
         is_spell_last_turn = (
             casted_spell.name in self.active_spells and self.active_spells[casted_spell.name] == 0
