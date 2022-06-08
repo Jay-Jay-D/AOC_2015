@@ -29,13 +29,15 @@ class Player:
 
 
 class Match:
-    def __init__(self, *players):
+    def __init__(self, *players, hard_mode=False):
         self.players = players
         self.winner = None
         self.turns = 0
         self._player_turn = True
+        self._hard_mode = hard_mode
 
     def run_turn(self):
+
         attacker = self.players[int(not self._player_turn)]
         defender = self.players[int(self._player_turn)]
         self.attack(attacker, defender)
@@ -46,6 +48,8 @@ class Match:
 
     def run_match(self, turns=inf):
         while all(p.hp > 0 for p in self.players) and self.turns < turns:
+            if self._hard_mode and self._player_turn:
+                self.players[0].hp -= 1
             self.run_turn()
             self.turns += 1
 

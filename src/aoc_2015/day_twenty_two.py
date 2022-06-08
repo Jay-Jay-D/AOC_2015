@@ -1,4 +1,7 @@
 from dataclasses import dataclass, field
+from math import inf
+from random import shuffle
+from tkinter import S
 from aoc_2015.day_twenty_one import Match, Player
 
 
@@ -32,7 +35,7 @@ class Spells:
     Shield = Spell(name="Shield", mana_cost=113, effect=Effect(armor=7, turns=6))
     Poison = Spell(name="Poison", mana_cost=173, effect=Effect(damage=3, turns=6))
     Recharge = Spell(name="Recharge", mana_cost=229, effect=Effect(mana=101, turns=5))
-    All = [MagicMisile, Drain, Shield, Poison, Recharge]
+    All = [Recharge, Poison, Shield, MagicMisile, Drain]
     ByName = {s.name: s for s in All}
 
 
@@ -126,8 +129,7 @@ class MatchV2(Match):
             return super().attack(attacker, defender)
 
 
-if __name__ == "__main__":
-    spell_cast_order = ["Poison", "Magic Misile"]
+def run_battle(spell_cast_order, hard_mode=False):
     player_stats = {
         "hp": 50,
         "mana": 500,
@@ -135,20 +137,48 @@ if __name__ == "__main__":
         "spell_cast_order": spell_cast_order,
     }
     boss_stats = {"hp": 71, "damage": 10}
-
-    player_stats = {
-        "hp": 15,
-        "mana": 100,
-        "spells": [
-            Spells.MagicMisile,
-            Spell(name="Poison", mana_cost=10, effect=Effect(damage=5, turns=4)),
-        ],
-        "spell_cast_order": ["Poison", "Magic Misile", "Poison"],
-    }
-    boss_stats = {"hp": 100, "damage": 5}
-
     player = Wizard(**player_stats)
     boss = Player(**boss_stats)
-    arena = MatchV2(player, boss)
-    # Act
-    arena.run_match()
+    arena = MatchV2(player, boss, hard_mode=hard_mode)
+    return arena.run_match(len(spell_cast_order) * 2)
+
+
+if __name__ == "__main__":
+    results = []
+    battle_count = 0
+    min_cost = inf
+
+    spells = Spells.All.copy()
+    shuffle(spells)
+
+    for spell in spells:
+        queue = [[spell.name]]
+        while queue:
+            path = queue.pop(0)
+            node = path[-1]
+
+            for next_spell in spells:
+                new_path = list(path)
+                new_path.append(next_spell.name)
+                #
+                path_cost = sum(Spells.ByName[s].mana_cost for s in new_path)
+                if path_cost > min_cost:
+                    continue
+
+                battle = run_battle(new_path, hard_mode=True)
+                battle_count += 1
+
+                if battle is None:
+                    queue.append(new_path)
+                    # print(f"Battle {battle_count}  not finished")
+                elif battle == "Boss":
+                    # print(f"Battle {battle_count}  Boos wins!")
+                    continue
+                else:
+                    print(
+                        f"Battle {battle_count}, Mana spent {path_cost} | Spell Orde:",
+                        " -> ".join(new_path),
+                    )
+                    results.append((path_cost, new_path))
+                    if path_cost < min_cost:
+                        min_cost = path_cost

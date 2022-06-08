@@ -81,21 +81,25 @@ def test_sum_effects():
     "spells,spell_cast_order,turns,boss_stats,expected_stats", spells_test_cases
 )
 def test_cast_spell(spells, spell_cast_order, turns, boss_stats, expected_stats):
-    # Arrange
-    player = Wizard(spells=spells, spell_cast_order=spell_cast_order)
-    boss = Player()
-    if boss_stats is not None:
-        boss = Player(**boss_stats)
-    arena = MatchV2(player, boss)
-    # Act
-    # [arena.run_turn() for _ in range(turns)]
-    arena.run_match(turns)
-    # Assert
-    assert arena.winner is None
-    actual_stats = {"Boss": asdict(boss), "Player": asdict(player)}
-    for player, stats in expected_stats.items():
-        for stat in stats:
-            assert expected_stats[player][stat] == actual_stats[player][stat]
+
+    for hard_mode in [False, True]:
+        # Arrange
+        player = Wizard(spells=spells, spell_cast_order=spell_cast_order)
+        boss = Player()
+        if boss_stats is not None:
+            boss = Player(**boss_stats)
+        arena = MatchV2(player, boss, hard_mode=hard_mode)
+        # Act
+        arena.run_match(turns)
+        # Assert
+        assert arena.winner is None
+        actual_stats = {"Boss": asdict(boss), "Player": asdict(player)}
+        for player, stats in expected_stats.items():
+            for stat in stats:
+                # if hard mode, the player losses one hp point per turn.
+                if hard_mode and player == "Player" and stat == "hp":
+                    expected_stats[player][stat] -= max(turns // 2, 1)
+                assert expected_stats[player][stat] == actual_stats[player][stat]
 
 
 battles_cases = [
