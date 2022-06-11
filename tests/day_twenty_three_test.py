@@ -56,7 +56,7 @@ jump_cases = [
 @pytest.mark.parametrize("initial_registers,line,expected_registers", instructions_cases)
 def test_instructions(initial_registers, line, expected_registers):
     # Act
-    actual_registers, _ = parse_instruction(0, line, initial_registers)
+    actual_registers, _ = parse_instruction(0, line, initial_registers, False)
     # Assert
     assert expected_registers == actual_registers
 
