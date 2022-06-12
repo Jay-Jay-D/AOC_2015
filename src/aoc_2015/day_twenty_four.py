@@ -4,13 +4,13 @@ from operator import mul
 from pathlib import Path
 
 
-def get_groups(packages):
+def get_groups(packages, group_count=3):
     total_weight = sum(packages)
-    group_weight = total_weight / 3
+    group_weight = total_weight / group_count
     groups = [
         # packages, # packages, product packages
         (set(seq), len(seq), reduce(mul, seq, 1))
-        for i in range(len(packages) - 3, 0, -1)
+        for i in range(len(packages) - group_count, 0, -1)
         for seq in combinations(packages, i)
         if sum(seq) == group_weight
     ]
@@ -31,4 +31,9 @@ if __name__ == "__main__":
     quantum_entanglement = reduce(mul, groups_in_sleigh[0], 1)
     print(
         f"Part 1: The quantum entanglement of the first group of packages is {quantum_entanglement}"
+    )
+    groups_in_sleigh = get_groups(packages, 4)
+    quantum_entanglement = reduce(mul, groups_in_sleigh[0], 1)
+    print(
+        f"Part 2: The quantum entanglement of the first group of packages is {quantum_entanglement}"
     )
